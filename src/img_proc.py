@@ -1,10 +1,11 @@
 import cv2
 import numpy as np
 
-class ConvexHull:
+class ImgProc:
+
     def convexHull(src_img_path, dest_img_path = 'img/ConvexHull.jpg'):
         # Load the image
-        img1 = cv2.imread('img/pressedkeyboard.png')
+        img1 = cv2.imread(src_img_path)
         # Convert it to greyscale
         img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
         # Threshold the image
@@ -24,3 +25,8 @@ class ConvexHull:
         cv2.rectangle(img1,(x,y),(x+w,y+h),(0,255,0),2)
         # Display the final convex hull image
         cv2.imwrite(dest_img_path, img1)
+        return hull
+
+    def get_keyboard(src_img_path,hull, dest_img_path = 'img/keyboard.jpg'):
+        img = cv2.imread(src_img_path)
+        print(hull)
