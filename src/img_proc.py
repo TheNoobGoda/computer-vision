@@ -5,11 +5,12 @@ class ImgProc:
 
     def convexHull(src_img_path, dest_img_path = 'img/ConvexHull.jpg'):
         # Load the image
-        img1 = cv2.imread(src_img_path)
+        img = cv2.imread(src_img_path)
         # Convert it to greyscale
-        img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(grey,(5,5),sigmaX=500,sigmaY=500)
         # Threshold the image
-        ret, thresh = cv2.threshold(img,190,255,cv2.THRESH_BINARY)
+        ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
         # Find the contours
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # For each contour, find the convex hull and draw it
@@ -20,16 +21,24 @@ class ImgProc:
                 hull.append(contours[i][j])
         hull = np.array(hull)
         hull = cv2.convexHull(hull)
-    
+
         x,y,w,h = cv2.boundingRect(hull)
-        cv2.rectangle(img1,(x,y),(x+w,y+h),(0,255,0),2)
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         # Display the final convex hull image
-        cv2.imwrite(dest_img_path, img1)
+        cv2.imwrite(dest_img_path, img)
         return hull
 
-    def get_keyboard(src_img_path,hull, dest_img_path = 'img/cropped_keyboard.jpg'):
+    def crop_img(src_img_path,hull, dest_img_path = 'img/cropped_keyboard.jpg'):
         img = cv2.imread(src_img_path)
         x,y,w,h = cv2.boundingRect(hull)
         crop_img = img[y:y+h, x:x+w]
         cv2.imwrite(dest_img_path, crop_img)
         return crop_img
+    
+    def img_thresh(src_img_path,threshold = 127, dest_img_path = 'img/img_thresh.jpg'):
+        img = cv2.imread(src_img_path)
+        ret, thresh = cv2.threshold(img,threshold,255,cv2.THRESH_BINARY)
+        print(np.max(thresh),np.min(thresh))
+        thresh[np.all(thresh == (255,255,255),axis=-1)] = (255,0,0)
+        thresh[np.all(thresh == (0,0,0),axis=-1)] = (0,255,0)
+        cv2.imwrite(dest_img_path,thresh)
