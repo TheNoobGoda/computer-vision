@@ -27,6 +27,9 @@ class ImgProc:
         cv2.imwrite(dest_img_path, img1)
         return hull
 
-    def get_keyboard(src_img_path,hull, dest_img_path = 'img/keyboard.jpg'):
+    def get_keyboard(src_img_path,hull, dest_img_path = 'img/cropped_keyboard.jpg'):
         img = cv2.imread(src_img_path)
-        print(hull)
+        x,y,w,h = cv2.boundingRect(hull)
+        crop_img = img[y:y+h, x:x+w]
+        cv2.imwrite(dest_img_path, crop_img)
+        return crop_img
