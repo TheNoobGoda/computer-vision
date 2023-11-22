@@ -8,13 +8,15 @@ class ImgProc:
         img = cv2.imread(src_img_path)
         # Convert it to greyscale
         grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(grey,(5,5),sigmaX=500,sigmaY=500)
+        blur = cv2.GaussianBlur(grey,(7,7),sigmaX=500,sigmaY=500)
         # Threshold the image
         ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
+        cv2.imwrite('img/thresh.jpg',thresh)
         # Find the contours
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # For each contour, find the convex hull and draw it
         # on the original image.
+
         hull = []
         for i in range(len(contours)):
             for j in range(len(contours[i])):
@@ -38,7 +40,6 @@ class ImgProc:
     def img_thresh(src_img_path,threshold = 127, dest_img_path = 'img/img_thresh.jpg'):
         img = cv2.imread(src_img_path)
         ret, thresh = cv2.threshold(img,threshold,255,cv2.THRESH_BINARY)
-        print(np.max(thresh),np.min(thresh))
         thresh[np.all(thresh == (255,255,255),axis=-1)] = (255,0,0)
         thresh[np.all(thresh == (0,0,0),axis=-1)] = (0,255,0)
         cv2.imwrite(dest_img_path,thresh)
