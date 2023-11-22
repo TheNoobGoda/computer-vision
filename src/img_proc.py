@@ -8,12 +8,20 @@ class ImgProc:
         img = cv2.imread(src_img_path)
         # Convert it to greyscale
         grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(grey,(7,7),sigmaX=500,sigmaY=500)
+        blur = cv2.GaussianBlur(grey,(11,11),sigmaX=500,sigmaY=500)
+        cv2.imwrite('img/blur.jpg',blur)
         # Threshold the image
-        ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
+        #ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
+        thresh = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,3,2)
+        thresh = (255-thresh)
+
         cv2.imwrite('img/thresh.jpg',thresh)
         # Find the contours
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        img1 = img.copy()
+
+        cv2.drawContours(img1, contours, -1, (0,255,0), 3)
+        cv2.imwrite('img/contours.jpg',img1)
         # For each contour, find the convex hull and draw it
         # on the original image.
 
@@ -29,6 +37,31 @@ class ImgProc:
         # Display the final convex hull image
         cv2.imwrite(dest_img_path, img)
         return hull
+    
+    def edge_lines(src_img_path,dest_img_path = 'img/lines.jpg'):
+        img = cv2.imread(src_img_path)
+        grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(grey,(11,11),sigmaX=500,sigmaY=500)
+        edges = cv2.Canny(blur, 50, 100)
+        cv2.imwrite('img/edges.jpg',edges)
+        lines = cv2.HoughLines(edges, 1, np.pi/180, 200)
+
+        for line in lines:
+            rho, theta = line[0]
+            
+            a = np.cos(theta)
+            b = np.sin(theta)
+
+            x0 = a * rho
+            y0 = b * rho
+            x1 = (int(x0 + 2000*(-b)))
+            y1 = (int(y0 + 2000*(a)))
+            x2 = (int(x0 - 2000*(-b)))
+            y2 = (int(y0 - 2000*(a)))
+            
+            cv2.line(img,(x1,y1),(x2,y2), (0,0,255),2)
+
+        cv2.imwrite('img/lines.jpg',img)
 
     def crop_img(src_img_path,hull, dest_img_path = 'img/cropped_keyboard.jpg'):
         img = cv2.imread(src_img_path)
