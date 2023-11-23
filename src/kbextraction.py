@@ -4,9 +4,10 @@ import numpy as np
 def find_piano(image_path):
     # Read the input image
     original_image = cv2.imread(image_path)
+    blur = cv2.GaussianBlur(original_image,(15,15),50)
 
     # Convert the image to HSV color space
-    hsv_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2HSV)
+    hsv_image = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     # Define a mask for the color range of white keys
     lower_white = np.array([0, 0, 200])
@@ -28,10 +29,16 @@ def find_piano(image_path):
     return cropped_image
 
 # Example usage
-image_path = 'imagepiano.jpg'
-result_image = find_piano(image_path)
+for i in range(1,17):
+    image_path = f"img/keyboard_exemples/kbd{i}.jpeg"
+    result_image = find_piano(image_path)
+    dest_path = f"img/keyboard_exemples/results/{i}.jpg"
+    cv2.imwrite(dest_path, result_image)
 
-# Display the result
-cv2.imshow('Cropped Piano Image', result_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# image_path = 'img/keyboard_exemples/kbd5.jpeg'
+# result_image = find_piano(image_path)
+
+# # Display the result
+# cv2.imshow('Cropped Piano Image', result_image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
