@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 # Load the image
-img1 = cv2.imread('pressedkeyboard.png')
+img1 = cv2.imread('unpressedpic.jpeg')
 # Convert it to greyscale
 img = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 # Threshold the image
