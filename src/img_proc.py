@@ -39,10 +39,36 @@ class ImgProc:
     
     def img_thresh(src_img_path,threshold = 127, dest_img_path = 'img/img_thresh.jpg'):
         img = cv2.imread(src_img_path)
-        ret, thresh = cv2.threshold(img,threshold,255,cv2.THRESH_BINARY)
-        thresh[np.all(thresh == (255,255,255),axis=-1)] = (255,0,0)
-        thresh[np.all(thresh == (0,0,0),axis=-1)] = (0,255,0)
-        cv2.imwrite(dest_img_path,thresh)
+        grey = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
+        #blur = cv2.GaussianBlur(grey,(11,11),10)
+        ret, thresh = cv2.threshold(grey,threshold,255,cv2.THRESH_BINARY)
+        # thresh[np.all(thresh == (255,255,255),axis=-1)] = (255,0,0)
+        # thresh[np.all(thresh == (0,0,0),axis=-1)] = (0,255,0)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        blur = cv2.GaussianBlur(thresh,(7,7),sigmaX=500,sigmaY=500)
+
+        edges = cv2.Canny(blur,50,100)
+        lines = cv2.HoughLines(edges,1,np.pi/180,100)
+        #print(lines)
+        #0 vertical 3.12 vertical 1.58 horizontal 0.017 vertical
+        if lines is not None:
+            for i in range(0, len(lines)):
+                rho = lines[i][0][0]
+                theta = lines[i][0][1]
+                if theta > 0.1 and theta < 2 :continue
+                a = np.cos(theta)
+                b = np.sin(theta)
+                x0 = a * rho
+                y0 = b * rho
+                pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
+                pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
+                #print(rho,theta)
+                cv2.line(img, pt1, pt2, (0,0,255), 3, cv2.LINE_AA)
+                #break
+
+        #cv2.drawContours(img,contours,-1, (0,255,0), 3)
+        cv2.imwrite(dest_img_path,img)
 
     def find_piano(image_path,dest_img_path = 'img/cropped_keyboard.jpg'):
         # Read the input image
@@ -72,3 +98,6 @@ class ImgProc:
         cv2.imwrite(dest_img_path, cropped_image)
 
         return cropped_image
+    
+        
+       
