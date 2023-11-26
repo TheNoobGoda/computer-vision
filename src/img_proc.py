@@ -3,7 +3,7 @@ import numpy as np
 
 class ImgProc:
 
-    def convexHull(src_img_path, dest_img_path = 'img/ConvexHull.jpg'):
+    def convexHull(src_img_path, dest_img_path = 'img/results/ConvexHull.jpg'):
         # Load the image
         img = cv2.imread(src_img_path)
         # Convert it to greyscale
@@ -11,7 +11,7 @@ class ImgProc:
         blur = cv2.GaussianBlur(grey,(7,7),sigmaX=500,sigmaY=500)
         # Threshold the image
         ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
-        cv2.imwrite('img/thresh.jpg',thresh)
+        cv2.imwrite('img/results/thresh.jpg',thresh)
         # Find the contours
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # For each contour, find the convex hull and draw it
@@ -30,47 +30,64 @@ class ImgProc:
         cv2.imwrite(dest_img_path, img)
         return hull
 
-    def crop_img(src_img_path,hull, dest_img_path = 'img/cropped_keyboard.jpg'):
+    def crop_img(src_img_path,hull, dest_img_path = 'img/results/cropped_keyboard.jpg'):
         img = cv2.imread(src_img_path)
         x,y,w,h = cv2.boundingRect(hull)
         crop_img = img[y:y+h, x:x+w]
         cv2.imwrite(dest_img_path, crop_img)
         return crop_img
     
-    def img_thresh(src_img_path,threshold = 127, dest_img_path = 'img/img_thresh.jpg'):
+    def find_keys(src_img_path, dest_img_path = 'img/results/keys.jpg'):
         img = cv2.imread(src_img_path)
-        grey = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
-        #blur = cv2.GaussianBlur(grey,(11,11),10)
-        ret, thresh = cv2.threshold(grey,threshold,255,cv2.THRESH_BINARY)
-        # thresh[np.all(thresh == (255,255,255),axis=-1)] = (255,0,0)
-        # thresh[np.all(thresh == (0,0,0),axis=-1)] = (0,255,0)
-        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # print(img.shape)
+        # print(len(img[0]))
+        resize = img[50:len(img)-50]
+        resize2 = []
 
-        blur = cv2.GaussianBlur(thresh,(7,7),sigmaX=500,sigmaY=500)
+        for i in range(resize.shape[0]):
+            resize2.append([])
+            for j in range(50,resize.shape[1]-50):
+                resize2[i].append(resize[i][j])
 
-        edges = cv2.Canny(blur,50,100)
-        lines = cv2.HoughLines(edges,1,np.pi/180,100)
-        #print(lines)
-        #0 vertical 3.12 vertical 1.58 horizontal 0.017 vertical
-        if lines is not None:
-            for i in range(0, len(lines)):
-                rho = lines[i][0][0]
-                theta = lines[i][0][1]
-                if theta > 0.1 and theta < 2 :continue
-                a = np.cos(theta)
-                b = np.sin(theta)
-                x0 = a * rho
-                y0 = b * rho
-                pt1 = (int(x0 + 2000*(-b)), int(y0 + 2000*(a)))
-                pt2 = (int(x0 - 2000*(-b)), int(y0 - 2000*(a)))
-                #print(rho,theta)
-                cv2.line(img, pt1, pt2, (0,0,255), 3, cv2.LINE_AA)
-                #break
+        resize2 = np.array(resize2) 
 
-        #cv2.drawContours(img,contours,-1, (0,255,0), 3)
+        cv2.imwrite('img/results/resize.jpg',resize2)
+
+        #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        #thresh = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
+        _,thresh = cv2.threshold(resize2,127,255,cv2.THRESH_BINARY)
+        cv2.imwrite('img/results/thresh.jpg',thresh)
+
+        kernel = np.ones((13, 13), np.uint8)
+        opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        cv2.imwrite('img/results/open.jpg',opned)
+
+        kernel = np.ones((7, 7), np.uint8)
+        closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel)
+        cv2.imwrite('img/results/close.jpg',closed)
+
+        edges = cv2.Canny(closed,50,150)
+        cv2.imwrite('img/results/canny.jpg',edges)
+
+        contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        for contour in contours:
+            # Approximate the contour to a polygon
+            epsilon = 0.02 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            
+            # Get the bounding box of the key
+            x, y, w, h = cv2.boundingRect(approx)
+            x +=50
+            y +=50
+            
+            # Draw the bounding box on the original image
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        
         cv2.imwrite(dest_img_path,img)
+        
 
-    def find_piano(image_path,dest_img_path = 'img/cropped_keyboard.jpg'):
+    def find_piano(image_path,dest_img_path = 'img/results/cropped_keyboard.jpg'):
         # Read the input image
         original_image = cv2.imread(image_path)
         blur = cv2.GaussianBlur(original_image,(15,15),50)
