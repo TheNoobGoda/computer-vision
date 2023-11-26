@@ -39,8 +39,7 @@ class ImgProc:
     
     def find_keys(src_img_path, dest_img_path = 'img/results/keys.jpg'):
         img = cv2.imread(src_img_path)
-        # print(img.shape)
-        # print(len(img[0]))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         resize = img[50:len(img)-50]
         resize2 = []
 
@@ -51,23 +50,23 @@ class ImgProc:
 
         resize2 = np.array(resize2) 
 
-        cv2.imwrite('img/results/resize.jpg',resize2)
+        #cv2.imwrite('img/results/resize.jpg',resize2)
 
         #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         #thresh = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
         _,thresh = cv2.threshold(resize2,127,255,cv2.THRESH_BINARY)
-        cv2.imwrite('img/results/thresh.jpg',thresh)
+        #cv2.imwrite('img/results/thresh.jpg',thresh)
 
         kernel = np.ones((13, 13), np.uint8)
         opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
-        cv2.imwrite('img/results/open.jpg',opned)
+        #cv2.imwrite('img/results/open.jpg',opned)
 
         kernel = np.ones((7, 7), np.uint8)
         closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel)
-        cv2.imwrite('img/results/close.jpg',closed)
+        #cv2.imwrite('img/results/close.jpg',closed)
 
         edges = cv2.Canny(closed,50,150)
-        cv2.imwrite('img/results/canny.jpg',edges)
+        #cv2.imwrite('img/results/canny.jpg',edges)
 
         contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -83,6 +82,18 @@ class ImgProc:
             
             # Draw the bounding box on the original image
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        _,thresh2 = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
+        cv2.imwrite('img/results/thresh.jpg',thresh2)
+        dilation = cv2.erode(thresh2,kernel,iterations = 1)
+        cv2.imwrite('img/results/open.jpg',dilation)
+        contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        min_contour_area = 0  # adjust as needed
+        valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
+
+        for contour in valid_contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
         cv2.imwrite(dest_img_path,img)
         
@@ -115,6 +126,8 @@ class ImgProc:
         cv2.imwrite(dest_img_path, cropped_image)
 
         return cropped_image
-    
+
+
+
         
        
