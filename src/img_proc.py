@@ -83,12 +83,14 @@ class ImgProc:
             # Draw the bounding box on the original image
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        _,thresh2 = cv2.threshold(gray,150,255,cv2.THRESH_BINARY)
+        thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
         cv2.imwrite('img/results/thresh.jpg',thresh2)
-        dilation = cv2.erode(thresh2,kernel,iterations = 1)
+        kernel = np.ones((7, 7), np.uint8)
+        #dilation = cv2.erode(thresh2,kernel,iterations = 3)
+        dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel)
         cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        min_contour_area = 0  # adjust as needed
+        min_contour_area = 5000  # adjust as needed
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
         for contour in valid_contours:
