@@ -59,6 +59,8 @@ class ImgProc:
         edges = cv2.Canny(closed,50,150)
         contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+        black_keys = []
+
         for contour in contours:
             epsilon = 0.02 * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
@@ -66,9 +68,9 @@ class ImgProc:
             x, y, w, h = cv2.boundingRect(approx)
             x +=50
             y +=50
+            black_keys.append((x,y,w,h))
             
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        black_keys = contours
         
         #detect white keys
         thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
@@ -79,10 +81,11 @@ class ImgProc:
         min_contour_area = 5000
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
+        white_keys = []
         for contour in valid_contours:
             x, y, w, h = cv2.boundingRect(contour)
+            white_keys.append((x,y,w,h)) 
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        white_keys = valid_contours
         
         cv2.imwrite(dest_img_path,img)
 
