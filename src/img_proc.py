@@ -39,6 +39,10 @@ class ImgProc:
     
     def find_keys(src_img_path, dest_img_path = 'img/results/keys.jpg'):
         img = cv2.imread(src_img_path)
+        img2 = img.copy()
+        x,y,_ =  img.shape
+        img_center = (y/2,x/2)
+
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         #remove image boreders
@@ -51,26 +55,6 @@ class ImgProc:
                 resize2[i].append(resize[i][j])
 
         resize2 = np.array(resize2) 
-
-        #detect black keys
-        _,thresh = cv2.threshold(resize2,127,255,cv2.THRESH_BINARY)
-        opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel= np.ones((13, 13), np.uint8))
-        closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel= np.ones((7, 7), np.uint8))
-        edges = cv2.Canny(closed,50,150)
-        contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        black_keys = []
-
-        for contour in contours:
-            epsilon = 0.02 * cv2.arcLength(contour, True)
-            approx = cv2.approxPolyDP(contour, epsilon, True)
-            
-            x, y, w, h = cv2.boundingRect(approx)
-            x +=50
-            y +=50
-            black_keys.append((x,y,w,h))
-            
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
         
         #detect white keys
         thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
@@ -82,11 +66,56 @@ class ImgProc:
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
         white_keys = []
+        maxX = 0
+        maxY = 0
+        minX = float("inf")
+        minY = float("inf")
         for contour in valid_contours:
             x, y, w, h = cv2.boundingRect(contour)
             white_keys.append((x,y,w,h)) 
-            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            if x > maxX: maxX = x+w
+            if x < minX : minX = x
+            if y > maxY: maxY = y+h
+            if y < minY : minY = y
+
+            #cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
+        #cv2.rectangle(img,(minX,minY),(maxX,maxY),(255,0,0),2)
+
+        #detect black keys
+        _,thresh = cv2.threshold(img2,127,255,cv2.THRESH_BINARY)
+        opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel= np.ones((13, 13), np.uint8))
+        closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel= np.ones((7, 7), np.uint8))
+        edges = cv2.Canny(closed,50,150)
+        cv2.imwrite('img/results/edges.jpg',edges)
+        
+        points = []
+        for i in range(len(edges[int(img_center[1])])):
+            if edges[int(img_center[1])][i] == 255: points.append(i)
+
+
+        left = points[0:int(len(points)/2)]
+        right = points[int(len(points)/2):len(points)]
+        left = left[len(left)-10:10]
+        right = right[0:10]
+
+        print(left,right)
+        
+        contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        black_keys = []
+
+        for contour in contours:
+            epsilon = 0.02 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            
+            x, y, w, h = cv2.boundingRect(approx)
+            #x +=50
+            #y +=50
+            black_keys.append((x,y,w,h))
+            
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
         cv2.imwrite(dest_img_path,img)
 
         return(black_keys,white_keys)
