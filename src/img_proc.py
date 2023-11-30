@@ -78,7 +78,7 @@ class ImgProc:
             if y > maxY: maxY = y+h
             if y < minY : minY = y
 
-            #cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
         #cv2.rectangle(img,(minX,minY),(maxX,maxY),(255,0,0),2)
 
@@ -100,8 +100,17 @@ class ImgProc:
         right = right[0:10]
 
         print(left,right)
+
+        for i in range(len(left)//2):
+            cv2.rectangle(img, (int(left[2*i]), 0), (int(left[2*i+1]), int(img_center[1])), (0, 0, 255), 2)
+            #cv2.circle(img, (int(i),int(img_center[1])), 5, (0, 0, 255), -1)
+            #cv2.circle(img, (int(i),0), 5, (0, 0, 255), -1)
         
+        for i in range(len(right)//2):
+            cv2.rectangle(img, (int(right[2*i]), 0), (int(right[2*i+1]), int(img_center[1])), (0, 0, 255), 2)
+
         contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
 
         black_keys = []
 
@@ -114,7 +123,7 @@ class ImgProc:
             #y +=50
             black_keys.append((x,y,w,h))
             
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            #cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         cv2.imwrite(dest_img_path,img)
 

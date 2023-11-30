@@ -4,7 +4,7 @@ from math import sqrt
 #import requests
 
 # 2. Load image remotely and define scaling variables
-input_image = Image.open("unpressedpic.jpeg")
+input_image = Image.open("../../img/keyboard_examples/kbd1.jpeg")
 input_pixels = input_image.load()
 width, height = input_image.width, input_image.height
 
