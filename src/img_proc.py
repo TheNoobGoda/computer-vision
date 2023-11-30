@@ -41,7 +41,7 @@ class ImgProc:
         img = cv2.imread(src_img_path)
         img2 = img.copy()
         x,y,_ =  img.shape
-        img_center = (y/2,x/2)
+        img_center = ((y/2)-10,x/2)
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -62,7 +62,7 @@ class ImgProc:
         dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel=np.ones((7, 7), np.uint8))
         cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        min_contour_area = 5000
+        min_contour_area = 10000
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
         white_keys = []
@@ -73,7 +73,8 @@ class ImgProc:
         
 
         #detect black keys
-        _,thresh = cv2.threshold(img2,127,255,cv2.THRESH_BINARY)
+        blur = cv2.GaussianBlur(img2,[7,7],1)
+        _,thresh = cv2.threshold(blur,127,255,cv2.THRESH_BINARY)
         opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel= np.ones((13, 13), np.uint8))
         closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel= np.ones((7, 7), np.uint8))
         edges = cv2.Canny(closed,50,150)
@@ -97,11 +98,24 @@ class ImgProc:
         for i in range(len(edges[int(img_center[1])])):
             if edges[int(img_center[1])][i] == 255: points.append(i)
 
+        left = []
+        right = []
 
-        left = points[0:int(len(points)/2)]
-        right = points[int(len(points)/2):len(points)]
+        for i in  points:
+            if i < img_center[0]: left.append(i)
+            else: right.append(i)
+
+        # for i in  left:
+        #     cv2.circle(img,(i,int(img_center[1]),),10,(255,0,0),1)
+
+        # for i in  right:
+        #     cv2.circle(img,(i,int(img_center[1]),),10,(0,255,0),1)
+
+        # cv2.circle(img,(int(img_center[0]),int(img_center[1]),),10,(0,0,255),1)
+
         left = left[len(left)-10:10]
         right = right[0:10]
+
 
 
         black_keys= []
