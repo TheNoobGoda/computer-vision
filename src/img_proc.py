@@ -141,7 +141,6 @@ class ImgProc:
         mask_white = cv2.inRange(hsv_image, lower_white, upper_white)
 
         piano_image = cv2.bitwise_and(original_image, original_image, mask=mask_white)
-        cv2.imshow('Piano Image', piano_image)
 
         # Find contours in the white mask
         contours, _ = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -153,12 +152,14 @@ class ImgProc:
         cropped_image = original_image[y:y+h, x:x+w]
 
         cv2.imwrite(dest_img_path, cropped_image)
+        
 
-        return cropped_image
+        return cropped_image, (x, y)
     
     def get_first_frame(src_vid_path, dest_img_path = 'img/results/piano.jpg'):
         cap = cv2.VideoCapture(src_vid_path)
         ret, img = cap.read()
+        #remove this code after
         img = cv2.rotate(img,cv2.ROTATE_180)
         resize = []
 
@@ -168,10 +169,21 @@ class ImgProc:
                 resize[i].append(img[i][j])
 
         resize = np.array(resize) 
+        #up to here
         cv2.imwrite(dest_img_path,resize)
         cap.release()
         return img
+    
+    def fix_key_coords(black_keys,white_keys,shape):
+        new_b_keys = []
+        for i in black_keys:
+            new_b_keys.append((i[0]+shape[0],i[1]+shape[1],i[2],i[3]))
 
+        new_w_keys = []
+        for i in white_keys:
+            new_w_keys.append((i[0]+shape[0],i[1]+shape[1],i[2],i[3])) 
+        
+        return(new_b_keys,new_w_keys)
 
 
         
