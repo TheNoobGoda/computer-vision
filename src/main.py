@@ -1,11 +1,13 @@
 from img_proc import ImgProc
+from hand_tracking import HandTrack
 
 def main():
-    # hull = ImgProc.convexHull('img/pressedkeyboard.png')
-    # ImgProc.crop_img('img/pressedkeyboard.png',hull)
-    ImgProc.find_piano('img/keyboard_exemples/kbd4.jpeg')
+    ImgProc.get_first_frame('video/piano_video.mp4')
+    ImgProc.find_piano('img/results/piano.jpg')
     black_kesy, white_keys = ImgProc.find_keys('img/results/cropped_keyboard.jpg')
     #print(black_kesy, white_keys)
+    #HandTrack.handTrakc('video/piano_video.mp4')
+
 
 
 if __name__ == "__main__":

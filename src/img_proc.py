@@ -44,17 +44,6 @@ class ImgProc:
         img_center = ((y/2)-10,x/2)
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        #remove image boreders
-        resize = img[50:len(img)-50]
-        resize2 = []
-
-        for i in range(resize.shape[0]):
-            resize2.append([])
-            for j in range(50,resize.shape[1]-50):
-                resize2[i].append(resize[i][j])
-
-        resize2 = np.array(resize2) 
         
         #detect white keys
         thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
@@ -62,7 +51,7 @@ class ImgProc:
         dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel=np.ones((7, 7), np.uint8))
         cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        min_contour_area = 10000
+        min_contour_area = 2500
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
         white_keys = []
@@ -97,6 +86,13 @@ class ImgProc:
         points = []
         for i in range(len(edges[int(img_center[1])])):
             if edges[int(img_center[1])][i] == 255: points.append(i)
+       
+        point = 0
+        for i in points:
+            if i < point+5: 
+                points.remove(i)
+                continue
+            point = i
 
         left = []
         right = []
@@ -115,7 +111,6 @@ class ImgProc:
 
         left = left[len(left)-10:10]
         right = right[0:10]
-
 
 
         black_keys= []
@@ -160,6 +155,22 @@ class ImgProc:
         cv2.imwrite(dest_img_path, cropped_image)
 
         return cropped_image
+    
+    def get_first_frame(src_vid_path, dest_img_path = 'img/results/piano.jpg'):
+        cap = cv2.VideoCapture(src_vid_path)
+        ret, img = cap.read()
+        img = cv2.rotate(img,cv2.ROTATE_180)
+        resize = []
+
+        for i in range(img.shape[0]):
+            resize.append([])
+            for j in range(0,img.shape[1]-50):
+                resize[i].append(img[i][j])
+
+        resize = np.array(resize) 
+        cv2.imwrite(dest_img_path,resize)
+        cap.release()
+        return img
 
 
 
