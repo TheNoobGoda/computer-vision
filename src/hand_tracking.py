@@ -41,13 +41,13 @@ class HandTrack:
             # cTime = time.time()
             # fps = 1/(cTime-pTime)
             # pTime = cTime
-            
+            key = []
             if len(finger_coords) != 0:
                 for finger in finger_coords:
                     for i in black_keys:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3] and finger[2] > -100):
                             cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            keys.append(("b",i))
+                            key.append(("b",i))
                             #print(finger[2])
                         # else :
                         #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
@@ -55,7 +55,7 @@ class HandTrack:
                     for i in white_keys:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3] and finger[2] > -100):
                             cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            keys.append(("w",i))
+                            key.append(("w",i))
                             #print(finger[2])
                         # else :
                         #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
@@ -66,5 +66,6 @@ class HandTrack:
             # cv2.imshow("Image", img)
             # cv2.waitKey(1)
             successe, img = cap.read()
+            if key != []: keys.append(key)
 
         return(keys)
