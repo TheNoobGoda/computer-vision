@@ -144,7 +144,6 @@ class ImgProc:
 
         # Find contours in the white mask
         contours, _ = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
         # Find the bounding box of the combined contours
         x, y, w, h = cv2.boundingRect(np.vstack(contours))
 
