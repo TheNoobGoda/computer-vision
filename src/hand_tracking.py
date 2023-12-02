@@ -15,6 +15,7 @@ class HandTrack:
         pTime = 0
         cTime = 0
         keys = []
+        last_key = []
         successe, img = cap.read()
         while successe:
             
@@ -66,6 +67,7 @@ class HandTrack:
             # cv2.imshow("Image", img)
             # cv2.waitKey(1)
             successe, img = cap.read()
-            if key != []: keys.append(key)
+            if key != [] and key != last_key: keys.append(key)
+            last_key = key
 
         return(keys)
