@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('video/piano_video.mp4')
 mpHands = mp.solutions.hands
 hands = mpHands.Hands()
 mpDraw = mp.solutions.drawing_utils
