@@ -183,6 +183,41 @@ class ImgProc:
             new_w_keys.append((i[0]+shape[0],i[1]+shape[1],i[2],i[3])) 
         
         return(new_b_keys,new_w_keys)
+    
+    def get_key(image_path,black_keys,white_keys):
+        img = cv2.imread(image_path)
+        print(img.shape)
+        black_imgs = []
+        for i in black_keys:
+            new_image = []
+            for row in range(i[0],i[0]+i[2]):
+                new_image.append([])
+                for col in  range(i[1],i[1]+i[3]):
+                    new_image[row-i[0]].append(img[col][row])
+
+            new_image = np.array(new_image)
+            black_imgs.append(new_image)
+
+        white_imgs = []
+        for i in white_keys:
+            new_image = []
+            for row in range(i[0],i[0]+i[2]):
+                new_image.append([])
+                for col in  range(i[1],i[1]+i[3]):
+                    new_image[row-i[0]].append(img[col][row])
+            new_image = np.array(new_image)
+            white_imgs.append(new_image)
+
+        for i in black_imgs:
+            cv2.imshow('image',i)
+            cv2.waitKey(0)
+
+        for i in white_imgs:
+            cv2.imshow('image',i)
+            cv2.waitKey(0)
+
+        return(black_imgs,white_imgs)
+
 
 
         

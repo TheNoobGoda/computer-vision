@@ -36,8 +36,10 @@ class HandTrack:
                         actual_depth = int(depth_value * 1000)
 
                         if id in [4,8,12,16,20]:
+                        #if id == 8:
                             cv2.circle(img,(cx,cy), 15, (255,0,255),cv2.FILLED)
                             finger_coords.append((cx,cy,actual_depth))
+                            #cv2.putText(img,str(actual_depth),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             # cTime = time.time()
             # fps = 1/(cTime-pTime)
@@ -64,8 +66,8 @@ class HandTrack:
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             #print(keys1,keys2)
-            # cv2.imshow("Image", img)
-            # cv2.waitKey(1)
+            cv2.imshow("Image", img)
+            cv2.waitKey(1)
             successe, img = cap.read()
             if key != [] and key != last_key: keys.append(key)
             last_key = key
