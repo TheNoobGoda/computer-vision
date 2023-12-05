@@ -8,7 +8,7 @@ def main():
     black_keys, white_keys = ImgProc.find_keys('img/results/cropped_keyboard.jpg')
     black_imgs, white_imgs =  ImgProc.get_key('img/results/cropped_keyboard.jpg',black_keys,white_keys)
     black_keys, white_keys = ImgProc.fix_key_coords(black_keys,white_keys,shape)
-    #print(black_kesy, white_keys)
+    print(black_keys)
     keys= HandTrack.handTrakc('video/piano_video.mp4',black_keys,white_keys,black_imgs, white_imgs)
     print(SheetMusic.getKeyNotes(black_keys,white_keys,keys))
 

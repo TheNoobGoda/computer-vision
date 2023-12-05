@@ -43,24 +43,24 @@ class HandTrack:
             # fps = 1/(cTime-pTime)
             # pTime = cTime
             key = []
+            
             if len(finger_coords) != 0:
                 for finger in finger_coords:
                     index = 0
-                    for i in black_keys:
+                    for i in black_keys[:]:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            print(black_imgs[index].shape)
-                            print(i[2],i[3])
-                            for row in range(0,i[2]-1):
+                            print(img.shape)
+                            print(i)
+                            for row in range(0,i[2]):
                                 for col in range(0,i[3]):
-                                    if black_imgs[index][row][col].all() != img[i[0]+row][i[2]+col].all():
-                                        print('fds')
+                                    if black_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
+                                        a = 1
                             cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
                             key.append(("b",i))
                             #print(finger[2])
-                            index +=1
+                        index +=1
                         # else :
                         #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
-                    
                     for i in white_keys:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
                             cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
@@ -72,8 +72,8 @@ class HandTrack:
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             #print(keys1,keys2)
-            cv2.imshow("Image", img)
-            cv2.waitKey(1)
+            # cv2.imshow("Image", img)
+            # cv2.waitKey(1)
             successe, img = cap.read()
             if key != [] and key != last_key: keys.append(key)
             last_key = key
