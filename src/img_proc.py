@@ -186,7 +186,6 @@ class ImgProc:
     
     def get_key(image_path,black_keys,white_keys):
         img = cv2.imread(image_path)
-        print(img.shape)
         black_imgs = []
         for i in black_keys:
             new_image = []
@@ -207,14 +206,6 @@ class ImgProc:
                     new_image[row-i[0]].append(img[col][row])
             new_image = np.array(new_image)
             white_imgs.append(new_image)
-
-        for i in black_imgs:
-            cv2.imshow('image',i)
-            cv2.waitKey(0)
-
-        for i in white_imgs:
-            cv2.imshow('image',i)
-            cv2.waitKey(0)
 
         return(black_imgs,white_imgs)
 
