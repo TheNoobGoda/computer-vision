@@ -64,8 +64,8 @@ class HandTrack:
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             #print(keys1,keys2)
-            # cv2.imshow("Image", img)
-            # cv2.waitKey(1)
+            cv2.imshow("Image", img)
+            cv2.waitKey(1)
             successe, img = cap.read()
             if key != [] and key != last_key: keys.append(key)
             last_key = key
