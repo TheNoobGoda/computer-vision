@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+from skimage.metrics import structural_similarity
 
 
 class HandTrack:
@@ -49,29 +50,33 @@ class HandTrack:
                     index = 0
                     for i in black_keys[:]:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            for row in range(0,i[2]):
-                                for col in range(0,i[3]):
-                                    if black_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
-                                        cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                                        key.append(("b",i))
-                                        print("black")
-                            #print(finger[2])
+                            new_image = []
+                            for row in range(i[0],i[0]+i[2]):
+                                new_image.append([])
+                                for col in  range(i[1],i[1]+i[3]):
+                                    new_image[row-i[0]].append(img[col][row])
+
+                            new_image = np.array(new_image)
+                            gray_image1 = cv2.cvtColor(black_imgs[index], cv2.COLOR_BGR2GRAY)
+                            gray_image2 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
+                            ssim,ssimImg = structural_similarity(gray_image1,gray_image2, full=True)
+                            print(ssim)
+                            cv2.imshow('ssim',ssimImg)
+                            cv2.waitKey(0)
                         index +=1
-                        # else :
-                        #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
-                    index = 0
-                    for i in white_keys:
-                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            for row in range(0,i[2]):
-                                for col in range(0,i[3]):
-                                    if white_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
-                                        cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                                        key.append(("b",i))
-                                        print("white")
-                            #print(finger[2])
-                        index +=1
-                        # else :
-                        #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
+                    # index = 0
+                    # for i in white_keys:
+                    #     if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
+                    #         for row in range(0,i[2]):
+                    #             for col in range(0,i[3]):
+                    #                 if white_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
+                    #                     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
+                    #                     key.append(("b",i))
+                    #                     print("white")
+                    #         #print(finger[2])
+                    #     index +=1
+                    #     # else :
+                    #     #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
                 
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
