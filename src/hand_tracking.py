@@ -49,23 +49,27 @@ class HandTrack:
                     index = 0
                     for i in black_keys[:]:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            print(img.shape)
-                            print(i)
                             for row in range(0,i[2]):
                                 for col in range(0,i[3]):
                                     if black_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
-                                        a = 1
-                            cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            key.append(("b",i))
+                                        cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
+                                        key.append(("b",i))
+                                        print("black")
                             #print(finger[2])
                         index +=1
                         # else :
                         #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
+                    index = 0
                     for i in white_keys:
                         if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            key.append(("w",i))
+                            for row in range(0,i[2]):
+                                for col in range(0,i[3]):
+                                    if white_imgs[index][row][col].all() != img[i[2]+row][i[0]+col].all():
+                                        cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
+                                        key.append(("b",i))
+                                        print("white")
                             #print(finger[2])
+                        index +=1
                         # else :
                         #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
                 
