@@ -57,6 +57,9 @@ class ImgProc:
         white_keys = []
         for contour in valid_contours:
             x, y, w, h = cv2.boundingRect(contour)
+            if y != 0:
+                h += y
+                y = 0
             white_keys.append((x,y,w,h)) 
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
@@ -100,14 +103,6 @@ class ImgProc:
         for i in  points:
             if i < img_center[0]: left.append(i)
             else: right.append(i)
-
-        # for i in  left:
-        #     cv2.circle(img,(i,int(img_center[1]),),10,(255,0,0),1)
-
-        # for i in  right:
-        #     cv2.circle(img,(i,int(img_center[1]),),10,(0,255,0),1)
-
-        # cv2.circle(img,(int(img_center[0]),int(img_center[1]),),10,(0,0,255),1)
 
         left = left[len(left)-10:10]
         right = right[0:10]

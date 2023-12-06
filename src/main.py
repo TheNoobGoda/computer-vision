@@ -10,6 +10,7 @@ def main():
     black_keys, white_keys = ImgProc.fix_key_coords(black_keys,white_keys,shape)
     #print(black_keys)
     keys= HandTrack.handTrakc('video/piano_video.mp4',black_keys,white_keys,black_imgs, white_imgs)
+    print(keys)
     print(SheetMusic.getKeyNotes(black_keys,white_keys,keys))
 
 
