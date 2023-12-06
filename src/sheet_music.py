@@ -17,6 +17,5 @@ class SheetMusic:
                         if i[1] == white_keys[j]:
                             chord.append(white_notes[j])
                             break
-            #if chord != []: 
             sheet.append(chord)
         return sheet

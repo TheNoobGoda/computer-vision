@@ -2,10 +2,11 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+from skimage.metrics import structural_similarity
 
 
 class HandTrack:
-    def handTrakc(src_vid_path,black_keys,white_keys):
+    def handTrakc(src_vid_path,black_keys,white_keys,black_imgs,white_imgs):
         cap = cv2.VideoCapture(src_vid_path)
 
         mpHands = mp.solutions.hands
@@ -32,40 +33,74 @@ class HandTrack:
                     for id, lm in enumerate(handLms.landmark):
                         h, w, c = img.shape
                         cx, cy = int(lm.x*w), int(lm.y*h)
-                        depth_value = results.multi_hand_landmarks[0].landmark[id].z
-                        actual_depth = int(depth_value * 1000)
 
                         if id in [4,8,12,16,20]:
+                        #if id == 8:
                             cv2.circle(img,(cx,cy), 15, (255,0,255),cv2.FILLED)
-                            finger_coords.append((cx,cy,actual_depth))
+                            finger_coords.append((cx,cy))
+                            #cv2.putText(img,str(actual_depth),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             # cTime = time.time()
             # fps = 1/(cTime-pTime)
             # pTime = cTime
             key = []
+            
             if len(finger_coords) != 0:
                 for finger in finger_coords:
-                    for i in black_keys:
-                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3] and finger[2] > -100):
-                            cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            key.append(("b",i))
-                            #print(finger[2])
-                        # else :
-                        #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
-                    
-                    for i in white_keys:
-                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3] and finger[2] > -100):
-                            cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(0,0,255),1)
-                            key.append(("w",i))
-                            #print(finger[2])
-                        # else :
-                        #     cv2.rectangle(img,(i[0],i[1]),(i[0]+i[2],i[1]+i[3]),(255,0,0),1)
+                    index = 0
+                    for i in black_keys[:]:
+                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
+                            new_image = []
+                            for row in range(i[0],i[0]+i[2]):
+                                new_image.append([])
+                                for col in  range(i[1],i[1]+i[3]):
+                                    new_image[row-i[0]].append(img[col][row])
+
+                            new_image = np.array(new_image)
+                            y = finger[1]-i[1]
+                            new_image = new_image[:,:y]
+                            new_image = new_image[:,:y]
+                            new_key_img = black_imgs[index][:,:y]
+                            gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
+                            gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
+                            x1,y1 = gray_image1.shape
+                            x2,y2 = gray_image2.shape
+                            ssim = None
+                            if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
+                                ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
+                                key.append(('b',i))
+                            #print(f"black key number {index}: {ssim}")
+                        index +=1
+                    index = 0
+                    for i in white_keys[:]:
+                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
+                            new_image = []
+                            for row in range(i[0],i[0]+i[2]):
+                                new_image.append([])
+                                for col in  range(i[1],i[1]+i[3]):
+                                    new_image[row-i[0]].append(img[col][row])
+
+                            new_image = np.array(new_image)
+                            y = finger[1]-i[1]
+                            new_image = new_image[:,:y]
+                            new_key_img = white_imgs[index][:,:y]
+                            gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
+                            gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
+                            x1,y1 = gray_image1.shape
+                            x2,y2 = gray_image2.shape
+                            ssim = None
+                            if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
+                                ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
+                                if ssim > 0.5:
+                                    key.append(('w',i))
+                            #print(f"white key number {index}: {ssim}")
+                        index +=1
                 
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             #print(keys1,keys2)
-            cv2.imshow("Image", img)
-            cv2.waitKey(1)
+            # cv2.imshow("Image", img)
+            # cv2.waitKey(0)
             successe, img = cap.read()
             if key != [] and key != last_key: keys.append(key)
             last_key = key

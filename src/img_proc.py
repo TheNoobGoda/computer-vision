@@ -57,6 +57,9 @@ class ImgProc:
         white_keys = []
         for contour in valid_contours:
             x, y, w, h = cv2.boundingRect(contour)
+            if y != 0:
+                h += y
+                y = 0
             white_keys.append((x,y,w,h)) 
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
@@ -100,14 +103,6 @@ class ImgProc:
         for i in  points:
             if i < img_center[0]: left.append(i)
             else: right.append(i)
-
-        # for i in  left:
-        #     cv2.circle(img,(i,int(img_center[1]),),10,(255,0,0),1)
-
-        # for i in  right:
-        #     cv2.circle(img,(i,int(img_center[1]),),10,(0,255,0),1)
-
-        # cv2.circle(img,(int(img_center[0]),int(img_center[1]),),10,(0,0,255),1)
 
         left = left[len(left)-10:10]
         right = right[0:10]
@@ -183,6 +178,32 @@ class ImgProc:
             new_w_keys.append((i[0]+shape[0],i[1]+shape[1],i[2],i[3])) 
         
         return(new_b_keys,new_w_keys)
+    
+    def get_key(image_path,black_keys,white_keys):
+        img = cv2.imread(image_path)
+        black_imgs = []
+        for i in black_keys:
+            new_image = []
+            for row in range(i[0],i[0]+i[2]):
+                new_image.append([])
+                for col in  range(i[1],i[1]+i[3]):
+                    new_image[row-i[0]].append(img[col][row])
+
+            new_image = np.array(new_image)
+            black_imgs.append(new_image)
+
+        white_imgs = []
+        for i in white_keys:
+            new_image = []
+            for row in range(i[0],i[0]+i[2]):
+                new_image.append([])
+                for col in  range(i[1],i[1]+i[3]):
+                    new_image[row-i[0]].append(img[col][row])
+            new_image = np.array(new_image)
+            white_imgs.append(new_image)
+
+        return(black_imgs,white_imgs)
+
 
 
         
