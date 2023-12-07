@@ -22,7 +22,7 @@ class HandTrack:
             
 
             #remove this code after
-            img = cv2.rotate(img,cv2.ROTATE_180)
+            img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
             #up to here
 
             imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
@@ -57,7 +57,12 @@ class HandTrack:
                                     new_image[row-i[0]].append(img[col][row])
 
                             new_image = np.array(new_image)
+                            cv2.imshow('img',black_imgs[index])
+                            cv2.waitKey(0)
+                            cv2.imshow('img',new_image)
+                            cv2.waitKey(0)
                             y = finger[1]-i[1]
+                            if y > 20 : y -=20
                             new_image = new_image[:,:y]
                             new_image = new_image[:,:y]
                             new_key_img = black_imgs[index][:,:y]
@@ -68,8 +73,8 @@ class HandTrack:
                             ssim = None
                             if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
                                 ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
-                                #print(f"black {index} {ssim}")
-                                if ssim > 0.5:
+                                print(f"black {index} {ssim}")
+                                if ssim < 0.8:
                                     key.append(('b',i))
                             #print(f"black key number {index}: {ssim}")
                         index +=1
@@ -84,6 +89,7 @@ class HandTrack:
 
                             new_image = np.array(new_image)
                             y = finger[1]-i[1]
+                            if y > 20 : y -=20
                             new_image = new_image[:,:y]
                             new_key_img = white_imgs[index][:,:y]
                             gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
@@ -93,8 +99,8 @@ class HandTrack:
                             ssim = None
                             if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
                                 ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
-                                #print(f"white {index} {ssim}")
-                                if ssim > 0.5:
+                                print(f"white {index} {ssim}")
+                                if ssim < 0.8:
                                     key.append(('w',i))
                             #print(f"white key number {index}: {ssim}")
                         index +=1
@@ -102,8 +108,8 @@ class HandTrack:
             #cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
             #print(keys1,keys2)
-            cv2.imshow("Image", img)
-            cv2.waitKey(1)
+            # cv2.imshow("Image", img)
+            # cv2.waitKey(0)
             successe, img = cap.read()
             if key != [] and key != last_key: keys.append(key)
             last_key = key

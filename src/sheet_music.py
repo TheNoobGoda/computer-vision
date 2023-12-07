@@ -19,3 +19,17 @@ class SheetMusic:
                             break
             sheet.append(chord)
         return sheet
+    
+    def sortKeys(keys):
+        sorted_keys = []
+        while len(keys) > 0:
+            min = float('inf')
+            index = 0
+            for i in range(len(keys)):
+                if keys[i][0] < min: 
+                    min = keys[i][0]
+                    index = i
+            sorted_keys.append(keys[index])
+            keys.remove(keys[index])
+
+        return sorted_keys

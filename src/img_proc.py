@@ -51,7 +51,7 @@ class ImgProc:
         dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel=np.ones((7, 7), np.uint8))
         cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        min_contour_area = 2500
+        min_contour_area = 2000
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
 
         white_keys = []
@@ -85,6 +85,8 @@ class ImgProc:
             value = line[0][0]
             if value> img_center[1] and value < final_line: final_line = value
         
+        if hor_lines == []:
+            final_line = x
         
         points = []
         for i in range(len(edges[int(img_center[1])])):
@@ -131,7 +133,7 @@ class ImgProc:
         hsv_image = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
         # Define a mask for the color range of white keys
-        lower_white = np.array([0, 0, 200])
+        lower_white = np.array([0, 0, 220])
         upper_white = np.array([180, 30, 255])
         mask_white = cv2.inRange(hsv_image, lower_white, upper_white)
 
@@ -154,17 +156,20 @@ class ImgProc:
         cap = cv2.VideoCapture(src_vid_path)
         ret, img = cap.read()
         #remove this code after
-        img = cv2.rotate(img,cv2.ROTATE_180)
-        resize = []
+        img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+        #img = cv2.rotate(img,cv2.ROTATE_180)
+        #cv2.imwrite('img/results/rotate.jpg',img)
+        # resize = []
 
-        for i in range(img.shape[0]):
-            resize.append([])
-            for j in range(0,img.shape[1]-50):
-                resize[i].append(img[i][j])
+        # for i in range(img.shape[0]):
+        #     resize.append([])
+        #     for j in range(0,img.shape[1]-50):
+        #         resize[i].append(img[i][j])
 
-        resize = np.array(resize) 
+        # resize = np.array(resize) 
+        #resize = img[:img.shape[0]-50]
         #up to here
-        cv2.imwrite(dest_img_path,resize)
+        cv2.imwrite(dest_img_path,img)
         cap.release()
         return img
     
