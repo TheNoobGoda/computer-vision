@@ -3,7 +3,13 @@ class SheetMusic:
         black_notes = ["C#","D#","F#","G#","A#","C#","D#","F#","G#","A#"]
         white_notes = ["C","D","E","F","G","A","B","C","D","E","F","G","A","B","D"]
         sheet = []
+        index = -1
         for key in keys:
+            index +=1
+            if index > 0 and index+1 < len(keys) and len(key) == 2:
+                if len(keys[index-1]) == 1 and len(keys[index+1]) == 1:
+                    if (key[0] == keys[index-1][0] and key[1] == keys[index+1][0]) or (key[1] == keys[index-1][0] and key[0] == keys[index+1][0]):
+                        continue
             chord = []
             for i in key:
                 if i[0] == "b":

@@ -75,9 +75,10 @@ class HandTrack:
                                 if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
                                     ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
                                     #print(f"black {index} {ssim}")
-                                    if ssim < 0.7:
-                                        cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
-                                        key.append(('b',i))
+                                    # if ssim < 0.9:
+                                    #     cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
+                                    #     if ('b',i) not in key:
+                                    #         key.append(('b',i))
                                 #print(f"black key number {index}: {ssim}")
                         index +=1
                     index = 0
@@ -102,7 +103,7 @@ class HandTrack:
                             if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
                                 ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
                                 #print(f"white {index} {ssim}")
-                                if ssim < 0.7:
+                                if ssim < 0.65:
                                     cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
                                     if ('w',i) not in key:
                                         key.append(('w',i))
@@ -115,7 +116,8 @@ class HandTrack:
             cv2.imshow("Image", show_img)
             cv2.waitKey(1)
             successe, img = cap.read()
-            if key != [] and key != last_key: keys.append(key)
-            last_key = key
+            if key !=[] and key != last_key: 
+                keys.append(key)
+                last_key = key
 
         return(keys)
