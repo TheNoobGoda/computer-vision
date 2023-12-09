@@ -5,7 +5,7 @@ from skimage.metrics import structural_similarity
 
 
 class HandTrack:
-    def handTrakc(src_vid_path,black_keys,white_keys,black_imgs,white_imgs,see_video):
+    def handTrakc(src_vid_path,black_keys,white_keys,black_imgs,white_imgs,see_video,detect_blakc_keys):
         cap = cv2.VideoCapture(src_vid_path)
 
         mpHands = mp.solutions.hands
@@ -42,46 +42,47 @@ class HandTrack:
             key = []
             if len(finger_coords) != 0:
                 for finger in finger_coords:
-                    index = 0
-                    for i in black_keys[:]:
-                        #check if the finger is on a black key
-                        if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
-                            #extract the region around the detected key
-                            new_image = []
-                            for row in range(i[0],i[0]+i[2]):
-                                new_image.append([])
-                                for col in  range(i[1],i[1]+i[3]):
-                                    new_image[row-i[0]].append(img[col][row])
+                    if detect_blakc_keys:
+                        index = 0
+                        for i in black_keys[:]:
+                            #check if the finger is on a black key
+                            if ( finger[0]> i[0] and finger[0] < i[0]+i[2] and finger[1] > i[1] and finger[1] < i[1]+i[3]):
+                                #extract the region around the detected key
+                                new_image = []
+                                for row in range(i[0],i[0]+i[2]):
+                                    new_image.append([])
+                                    for col in  range(i[1],i[1]+i[3]):
+                                        new_image[row-i[0]].append(img[col][row])
 
-                            new_image = np.array(new_image)
+                                new_image = np.array(new_image)
 
-                            #remove fingers from image
-                            y = finger[1]-i[1]
-                            for finger2 in finger_coords:
-                                if finger2[1] < finger[1] and finger2[0]> i[0] and finger2[0] < i[0]+i[2] and finger2[1] > i[1] and finger2[1] < i[1]+i[3]:
-                                    y = finger2[1]-i[1]
-                            if y > 30 : y -=30
-                            else: y = 0
-                            if y != 0:
-                                new_image = new_image[:,:y]
-                                new_key_img = black_imgs[index][:,:y]
+                                #remove fingers from image
+                                y = finger[1]-i[1]
+                                for finger2 in finger_coords:
+                                    if finger2[1] < finger[1] and finger2[0]> i[0] and finger2[0] < i[0]+i[2] and finger2[1] > i[1] and finger2[1] < i[1]+i[3]:
+                                        y = finger2[1]-i[1]
+                                if y > 30 : y -=30
+                                else: y = 0
+                                if y != 0:
+                                    new_image = new_image[:,:y]
+                                    new_key_img = black_imgs[index][:,:y]
 
-                                #convert images to grayscale for structural similarity comparison
-                                gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
-                                gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
+                                    #convert images to grayscale for structural similarity comparison
+                                    gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
+                                    gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
 
-                                x1,y1 = gray_image1.shape
-                                x2,y2 = gray_image2.shape
-                                ssim = None
+                                    x1,y1 = gray_image1.shape
+                                    x2,y2 = gray_image2.shape
+                                    ssim = None
 
-                                #check if the structural similarity is below a threshold
-                                if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
-                                    ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
-                                    # if ssim < 0.9:
-                                    #     cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
-                                    #     if ('b',i) not in key:
-                                    #         key.append(('b',i))
-                        index +=1
+                                    #check if the structural similarity is below a threshold
+                                    if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
+                                        ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
+                                        if ssim < 0.9:
+                                            cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
+                                            if ('b',i) not in key:
+                                                key.append(('b',i))
+                            index +=1
                     
                     index = 0
                     for i in white_keys[:]:
