@@ -11,7 +11,7 @@ class ImgProc:
         blur = cv2.GaussianBlur(grey,(7,7),sigmaX=500,sigmaY=500)
         # Threshold the image
         ret, thresh = cv2.threshold(blur,190,255,cv2.THRESH_BINARY)
-        cv2.imwrite('img/results/thresh.jpg',thresh)
+        # cv2.imwrite('img/results/thresh.jpg',thresh)
         # Find the contours
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # For each contour, find the convex hull and draw it
@@ -27,29 +27,28 @@ class ImgProc:
         x,y,w,h = cv2.boundingRect(hull)
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
         # Display the final convex hull image
-        cv2.imwrite(dest_img_path, img)
+        # cv2.imwrite(dest_img_path, img)
         return hull
 
     def crop_img(src_img_path,hull, dest_img_path = 'img/results/cropped_keyboard.jpg'):
         img = cv2.imread(src_img_path)
         x,y,w,h = cv2.boundingRect(hull)
         crop_img = img[y:y+h, x:x+w]
-        cv2.imwrite(dest_img_path, crop_img)
+        # cv2.imwrite(dest_img_path, crop_img)
         return crop_img
     
-    def find_keys(src_img_path, dest_img_path = 'img/results/keys.jpg'):
-        img = cv2.imread(src_img_path)
-        img2 = img.copy()
-        x,y,_ =  img.shape
+    def find_keys(image, dest_img_path = 'img/results/keys.jpg'):
+        img2 = image.copy()
+        x,y,_ =  image.shape
         img_center = ((y/2)-10,x/2)
 
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         #detect white keys
         thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
-        cv2.imwrite('img/results/thresh.jpg',thresh2)
+        # cv2.imwrite('img/results/thresh.jpg',thresh2)
         dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel=np.ones((7, 7), np.uint8))
-        cv2.imwrite('img/results/open.jpg',dilation)
+        # cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         min_contour_area = 2000
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
@@ -61,7 +60,7 @@ class ImgProc:
                 h += y
                 y = 0
             white_keys.append((x,y,w,h)) 
-            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
 
         #detect black keys
@@ -71,7 +70,7 @@ class ImgProc:
         closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel= np.ones((7, 7), np.uint8))
         edges = cv2.Canny(closed,50,150)
         lines = cv2.HoughLines(edges,1,np.pi/180,75)
-        cv2.imwrite('img/results/edges.jpg',edges)
+        # cv2.imwrite('img/results/edges.jpg',edges)
 
         hor_lines = []
         if lines is not None:
@@ -112,22 +111,20 @@ class ImgProc:
 
         black_keys= []
         for i in range(len(left)//2):
-            cv2.rectangle(img, (int(left[2*i]), 0), (int(left[2*i+1]), int(final_line)), (0, 0, 255), 2)
+            cv2.rectangle(image, (int(left[2*i]), 0), (int(left[2*i+1]), int(final_line)), (0, 0, 255), 2)
             black_keys.append((int(left[2*i]), 0,int(left[2*i+1])-int(left[2*i]),int(final_line)))
         
         for i in range(len(right)//2):
-            cv2.rectangle(img, (int(right[2*i]), 0), (int(right[2*i+1]),int(final_line)), (0, 0, 255), 2)
+            cv2.rectangle(image, (int(right[2*i]), 0), (int(right[2*i+1]),int(final_line)), (0, 0, 255), 2)
             black_keys.append((int(right[2*i]), 0,int(right[2*i+1])-int(right[2*i]),int(final_line)))
 
-        cv2.imwrite(dest_img_path,img)
+        # cv2.imwrite(dest_img_path,image)
 
         return(black_keys,white_keys)
         
 
-    def find_piano(image_path,dest_img_path = 'img/results/cropped_keyboard.jpg'):
-        # Read the input image
-        original_image = cv2.imread(image_path)
-        blur = cv2.GaussianBlur(original_image,(15,15),50)
+    def find_piano(image,dest_img_path = 'img/results/cropped_keyboard.jpg'):
+        blur = cv2.GaussianBlur(image,(15,15),50)
 
         # Convert the image to HSV color space
         hsv_image = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
@@ -137,7 +134,7 @@ class ImgProc:
         upper_white = np.array([180, 30, 255])
         mask_white = cv2.inRange(hsv_image, lower_white, upper_white)
 
-        piano_image = cv2.bitwise_and(original_image, original_image, mask=mask_white)
+        piano_image = cv2.bitwise_and(image, image, mask=mask_white)
 
         # Find contours in the white mask
         contours, _ = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -145,9 +142,9 @@ class ImgProc:
         x, y, w, h = cv2.boundingRect(np.vstack(contours))
 
         # Crop the original image to the bounding box
-        cropped_image = original_image[y:y+h, x:x+w]
+        cropped_image = image[y:y+h, x:x+w]
 
-        cv2.imwrite(dest_img_path, cropped_image)
+        # cv2.imwrite(dest_img_path, cropped_image)
         
 
         return cropped_image, (x, y)
@@ -158,7 +155,7 @@ class ImgProc:
         #remove this code after
         img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
         #img = cv2.rotate(img,cv2.ROTATE_180)
-        #cv2.imwrite('img/results/rotate.jpg',img)
+        ## cv2.imwrite('img/results/rotate.jpg',img)
         # resize = []
 
         # for i in range(img.shape[0]):
@@ -169,7 +166,7 @@ class ImgProc:
         # resize = np.array(resize) 
         #resize = img[:img.shape[0]-50]
         #up to here
-        cv2.imwrite(dest_img_path,img)
+        # cv2.imwrite(dest_img_path,img)
         cap.release()
         return img
     
@@ -184,15 +181,14 @@ class ImgProc:
         
         return(new_b_keys,new_w_keys)
     
-    def get_key(image_path,black_keys,white_keys):
-        img = cv2.imread(image_path)
+    def get_key(image,black_keys,white_keys):
         black_imgs = []
         for i in black_keys:
             new_image = []
             for row in range(i[0],i[0]+i[2]):
                 new_image.append([])
                 for col in  range(i[1],i[1]+i[3]):
-                    new_image[row-i[0]].append(img[col][row])
+                    new_image[row-i[0]].append(image[col][row])
 
             new_image = np.array(new_image)
             black_imgs.append(new_image)
@@ -203,7 +199,7 @@ class ImgProc:
             for row in range(i[0],i[0]+i[2]):
                 new_image.append([])
                 for col in  range(i[1],i[1]+i[3]):
-                    new_image[row-i[0]].append(img[col][row])
+                    new_image[row-i[0]].append(image[col][row])
             new_image = np.array(new_image)
             white_imgs.append(new_image)
 
