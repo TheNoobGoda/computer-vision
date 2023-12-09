@@ -2,13 +2,6 @@ import cv2
 import numpy as np
 
 class ImgProc:
-
-    def crop_img(src_img_path,hull, dest_img_path = 'img/results/cropped_keyboard.jpg'):
-        img = cv2.imread(src_img_path)
-        x,y,w,h = cv2.boundingRect(hull)
-        crop_img = img[y:y+h, x:x+w]
-        # cv2.imwrite(dest_img_path, crop_img)
-        return crop_img
     
     def find_keys(image, dest_img_path = 'img/results/keys.jpg'):
         img2 = image.copy()
