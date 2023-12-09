@@ -1,4 +1,3 @@
-import sys
 from img_proc import ImgProc
 from hand_tracking import HandTrack
 from sheet_music import SheetMusic
