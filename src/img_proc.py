@@ -100,8 +100,6 @@ class ImgProc:
         upper_white = np.array([180, 30, 255])
         mask_white = cv2.inRange(hsv_image, lower_white, upper_white)
 
-        piano_image = cv2.bitwise_and(image, image, mask=mask_white)
-
         # Find contours in the white mask
         contours, _ = cv2.findContours(mask_white, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         # Find the bounding box of the combined contours
@@ -120,17 +118,6 @@ class ImgProc:
         ret, img = cap.read()
         #remove this code after
         img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-        #img = cv2.rotate(img,cv2.ROTATE_180)
-        ## cv2.imwrite('img/results/rotate.jpg',img)
-        # resize = []
-
-        # for i in range(img.shape[0]):
-        #     resize.append([])
-        #     for j in range(0,img.shape[1]-50):
-        #         resize[i].append(img[i][j])
-
-        # resize = np.array(resize) 
-        #resize = img[:img.shape[0]-50]
         #up to here
         # cv2.imwrite(dest_img_path,img)
         cap.release()

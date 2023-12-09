@@ -11,10 +11,6 @@ class HandTrack:
 
         mpHands = mp.solutions.hands
         hands = mpHands.Hands()
-        mpDraw = mp.solutions.drawing_utils
-
-        pTime = 0
-        cTime = 0
         keys = []
         last_key = []
         successe, img = cap.read()
@@ -41,9 +37,6 @@ class HandTrack:
                             finger_coords.append((cx,cy))
                             #cv2.putText(img,str(actual_depth),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,0),3)
 
-            # cTime = time.time()
-            # fps = 1/(cTime-pTime)
-            # pTime = cTime
             key = []
             if len(finger_coords) != 0:
                 for finger in finger_coords:
