@@ -61,8 +61,10 @@ class HandTrack:
                                 for finger2 in finger_coords:
                                     if finger2[1] < finger[1] and finger2[0]> i[0] and finger2[0] < i[0]+i[2] and finger2[1] > i[1] and finger2[1] < i[1]+i[3]:
                                         y = finger2[1]-i[1]
+
                                 if y > 30 : y -=30
                                 else: y = 0
+
                                 if y != 0:
                                     new_image = new_image[:,:y]
                                     new_key_img = black_imgs[index][:,:y]
@@ -82,6 +84,7 @@ class HandTrack:
                                             cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
                                             if ('b',i) not in key:
                                                 key.append(('b',i))
+
                             index +=1
                     
                     index = 0
@@ -99,25 +102,30 @@ class HandTrack:
 
                             #remove fingers from image
                             y = finger[1]-i[1]
-                            if y > 20 : y -=20
-                            new_image = new_image[:,:y]
-                            new_key_img = white_imgs[index][:,:y]
+                            
+                            if y > 30 : y -=30
+                            else: y = 0
 
-                            #convert images to grayscale for structural similarity comparison
-                            gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
-                            gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
+                            if y != 0:
+                                new_image = new_image[:,:y]
+                                new_key_img = white_imgs[index][:,:y]
 
-                            x1,y1 = gray_image1.shape
-                            x2,y2 = gray_image2.shape
-                            ssim = None
+                                #convert images to grayscale for structural similarity comparison
+                                gray_image1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
+                                gray_image2 = cv2.cvtColor(new_key_img, cv2.COLOR_BGR2GRAY)
 
-                            #check if the structural similarity is below a threshold
-                            if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
-                                ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
-                                if ssim < 0.65:
-                                    cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
-                                    if ('w',i) not in key:
-                                        key.append(('w',i))
+                                x1,y1 = gray_image1.shape
+                                x2,y2 = gray_image2.shape
+                                ssim = None
+
+                                #check if the structural similarity is below a threshold
+                                if x1 >= 7 and x2 >= 7 and y1 >=7 and y2 >=7:
+                                    ssim,_ = structural_similarity(gray_image1,gray_image2, full=True)
+                                    if ssim < 0.65:
+                                        cv2.rectangle(show_img,(i[0],i[1]),(i[0]+i[2],i[3]+i[1]),(255,0,0),1)
+                                        if ('w',i) not in key:
+                                            key.append(('w',i))
+
                         index +=1
                 
             #see video

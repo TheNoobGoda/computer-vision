@@ -6,6 +6,7 @@ class SheetMusic:
 
         sheet = []
         index = -1
+        
         for key in keys:
             index +=1
             #check to see if key is valid
@@ -13,7 +14,7 @@ class SheetMusic:
                 if len(keys[index-1]) == 1 and len(keys[index+1]) == 1:
                     if (key[0] == keys[index-1][0] and key[1] == keys[index+1][0]) or (key[1] == keys[index-1][0] and key[0] == keys[index+1][0]):
                         continue
-                    
+
             chord = []
 
             #map key to its corresponding musical note
