@@ -14,4 +14,4 @@ def main(video_path,save_imgs):
 
 
 if __name__ == "__main__":
-    main('video/piano_video8.mp4',False)
+    main('video/piano_video8.mp4',True)
