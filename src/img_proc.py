@@ -3,7 +3,7 @@ import numpy as np
 
 class ImgProc:
     
-    def find_keys(image, dest_img_path = 'img/results/keys.jpg'):
+    def find_keys(image,save_imgs):
         img2 = image.copy()
         x,y,_ =  image.shape
         img_center = ((y/2)-10,x/2)
@@ -11,10 +11,10 @@ class ImgProc:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         #detect white keys
+
         thresh2 = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,2)
-        # cv2.imwrite('img/results/thresh.jpg',thresh2)
+        
         dilation = cv2.morphologyEx(thresh2,cv2.MORPH_OPEN,kernel=np.ones((7, 7), np.uint8))
-        # cv2.imwrite('img/results/open.jpg',dilation)
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         min_contour_area = 2000
         valid_contours = [contour for contour in contours if cv2.contourArea(contour) > min_contour_area]
@@ -30,13 +30,14 @@ class ImgProc:
         
 
         #detect black keys
+
         blur = cv2.GaussianBlur(img2,[7,7],1)
         _,thresh = cv2.threshold(blur,127,255,cv2.THRESH_BINARY)
         opned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel= np.ones((13, 13), np.uint8))
         closed = cv2.morphologyEx(opned, cv2.MORPH_CLOSE, kernel= np.ones((7, 7), np.uint8))
         edges = cv2.Canny(closed,50,150)
         lines = cv2.HoughLines(edges,1,np.pi/180,75)
-        # cv2.imwrite('img/results/edges.jpg',edges)
+        
 
         hor_lines = []
         if lines is not None:
@@ -84,12 +85,22 @@ class ImgProc:
             cv2.rectangle(image, (int(right[2*i]), 0), (int(right[2*i+1]),int(final_line)), (0, 0, 255), 2)
             black_keys.append((int(right[2*i]), 0,int(right[2*i+1])-int(right[2*i]),int(final_line)))
 
-        # cv2.imwrite(dest_img_path,image)
+        if save_imgs:
+            cv2.imwrite('img/results/keys.jpg',image)
+            cv2.imwrite('img/results/find_keys_thresh2.jpg',thresh2)
+            cv2.imwrite('img/results/find_keys_dilation.jpg',dilation)
+            cv2.imwrite('img/results/find_keys_edges.jpg',edges)
+            cv2.imwrite('img/results/find_keys_blur.jpg',blur)
+            cv2.imwrite('img/results/find_keys_thresh.jpg',thresh)
+            cv2.imwrite('img/results/find_keys_opned.jpg',opned)
+            cv2.imwrite('img/results/find_keys_closed.jpg',closed)
+
+
 
         return(black_keys,white_keys)
         
 
-    def find_piano(image,dest_img_path = 'img/results/cropped_keyboard.jpg'):
+    def find_piano(image,save_imgs):
         blur = cv2.GaussianBlur(image,(15,15),50)
 
         # Convert the image to HSV color space
@@ -108,18 +119,21 @@ class ImgProc:
         # Crop the original image to the bounding box
         cropped_image = image[y:y+h, x:x+w]
 
-        # cv2.imwrite(dest_img_path, cropped_image)
+        if save_imgs:
+            cv2.imwrite('img/results/cropped_keyboard.jpg', cropped_image)
+            cv2.imwrite('img/results/find_piano_blur.jpg', blur)
         
 
         return cropped_image, (x, y)
     
-    def get_first_frame(src_vid_path, dest_img_path = 'img/results/piano.jpg'):
+    def get_first_frame(src_vid_path,save_imgs):
         cap = cv2.VideoCapture(src_vid_path)
-        ret, img = cap.read()
+        _, img = cap.read()
         #remove this code after
         img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
         #up to here
-        # cv2.imwrite(dest_img_path,img)
+        if save_imgs:
+            cv2.imwrite('img/results/piano.jpg',img)
         cap.release()
         return img
     
