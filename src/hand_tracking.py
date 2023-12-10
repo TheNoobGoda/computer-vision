@@ -14,10 +14,6 @@ class HandTrack:
         last_key = []
         successe, img = cap.read()
         while successe:
-            
-            #remove this code after
-            img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-            #up to here
 
             show_img = img.copy()
 

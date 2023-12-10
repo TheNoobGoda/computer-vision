@@ -144,10 +144,6 @@ class ImgProc:
         #read the first frame
         _, img = cap.read()
 
-        #remove this code after
-        img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-        #up to here
-
         #save image for debugging
         if save_imgs:
             cv2.imwrite('img/results/piano.jpg',img)
