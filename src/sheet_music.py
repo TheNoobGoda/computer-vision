@@ -6,8 +6,10 @@ class SheetMusic:
 
         sheet = []
         index = -1
+        print(keys)
         
         for key in keys:
+            print(key)
             index +=1
             #check to see if key is valid
             if index > 0 and index+1 < len(keys) and len(key) == 2:

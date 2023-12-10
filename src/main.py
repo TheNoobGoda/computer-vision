@@ -22,4 +22,4 @@ def main(video_path,save_imgs,see_video,detect_blakc_keys):
 
 
 if __name__ == "__main__":
-    main('video/piano_video8.mp4',False,False,False)
+    main('video/piano_video.mp4',False,True,False)
