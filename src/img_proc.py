@@ -97,6 +97,7 @@ class ImgProc:
         #save intermediate images for debugging
         if save_imgs:
             cv2.imwrite('img/results/keys.jpg',image)
+            cv2.imwrite('img/results/find_keys_gray.jpg',gray)
             cv2.imwrite('img/results/find_keys_thresh2.jpg',thresh2)
             cv2.imwrite('img/results/find_keys_dilation.jpg',dilation)
             cv2.imwrite('img/results/find_keys_edges.jpg',edges)
@@ -130,6 +131,10 @@ class ImgProc:
         if save_imgs:
             cv2.imwrite('img/results/cropped_keyboard.jpg', cropped_image)
             cv2.imwrite('img/results/find_piano_blur.jpg', blur)
+            cv2.imwrite('img/results/find_piano_mask.jpg', mask_white)
+            show_img = image.copy()
+            cv2.rectangle(show_img,(x,y),(x+w,y+h),(0,0,255),1)
+            cv2.imwrite('img/results/find_piano_rectangle.jpg', show_img)
         
         return cropped_image, (x, y)
     
